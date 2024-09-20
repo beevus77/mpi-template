@@ -73,7 +73,7 @@ int main(int argc, char **argv)
         }
     }
     double verifications[2] = {0,0};
-    MPI_Reduce(&vals, &verifications, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&vals, &verifications, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // Call MPI_WTIME on root process, print elapsed time and verification
     if (ID == 0) {
