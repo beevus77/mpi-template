@@ -29,18 +29,28 @@ int main(int argc, char **argv)
 
     // Use MPI_BARRIER then call MPI_WTIME on root process
     MPI_BARRIER(MPI_COMM_WORLD);
-    if ID == 0:
+    if (ID == 0){
         start = MPI_WTIME();
+    }
 
-    // Iterate 10 times
+    // Iterate 10 times, FIXME: not actual iteration
+    double val1 = 0;
+    for (int i = 0; i < 10; i++) {
+        val1 += f(ID + i);
+    }
+    val2 = pow(val1, 2);
 
-    // TODO: Compute verification values, send to root process
+    // Compute verification values, send to root process, FIXME: verification values not correct
+    MPI_Reduce(&val, &verification1, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&val, &verification2, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // Call MPI_WTIME on root process, print elapsed time and verification
-    if ID == 0:
+    if (ID == 0) {
         end = MPI_WTIME();
         cout << end-start << " seconds" << endl;
-        //TODO: print verification values
+        cout << "Sum of entries of A (verification 1):\t\t" << verification1 << endl;
+        cout << "Sum of squares of entries of A (verification 2):\t" << verification2 << endl;
+    }
 
     // Finalize MPI
     MPI_Finalize();
