@@ -72,14 +72,14 @@ int main(int argc, char **argv)
             vals[1] += pow(myA[i][j],2);
         }
     }
-    double verifications[2];
+    double verifications[2] = {0,0};
     MPI_Reduce(&vals, &verifications, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // Call MPI_WTIME on root process, print elapsed time and verification
     if (ID == 0) {
         end = MPI_Wtime();
         cout << end-start << " seconds" << endl;
-        cout << "Sum of entries of A (verification 1):\t\t" << verifications[0] << endl;
+        cout << "Sum of entries of A (verification 1):\t\t\t\t" << verifications[0] << endl;
         cout << "Sum of squares of entries of A (verification 2):\t" << verifications[1] << endl;
     }
 

@@ -24,31 +24,34 @@ int main(int argc, char **argv)
     // cout << 20 % int(ceil(20./3)) << endl;
     // cout << argv[1] << endl;
 
-    // int m = 20, n = 20, P=3, ID = stoi(argv[1]);
-    // int numrows = ceil(m/P), numcols=n;
-    // if (ID < (m % int(ceil(m/P))) ) {
-    //     numrows++;
-    // }
-    // double myA[numrows][numcols];
-    // for (int i = 0; i < numrows; i++) {
-    //     for (int j = 0; j < n; j++) {
-    //         double val_i = ID*ceil(m/P) + i;
+    int m = 20, n = 20, P=4, ID = stoi(argv[1]);
+    int numrows = ceil(m/P), numcols=n;
+    if (ID < (m % int(ceil(m/P))) ) {
+        numrows++;
+    }
+    double myA[numrows][numcols];
+    for (int i = 0; i < numrows; i++) {
+        for (int j = 0; j < n; j++) {
+            double val_i = ID*ceil(m/P) + i;
 
-    //         if (ID < (m % int(ceil(m/P))) ) {
-    //             val_i += ID;
-    //         } else {
-    //             val_i += m % int(ceil(m/P));
-    //         }
+            if (ID < (m % int(ceil(m/P))) ) {
+                val_i += ID;
+            } else {
+                val_i += m % int(ceil(m/P));
+            }
 
-    //         myA[i][j] = j*sin(val_i) + val_i*cos(j) + sqrt(val_i+j+1);
-    //         cout << "myA[" << i << "][" << j << "]\t" << myA[i][j] << endl;
-    //     }
-    // }
-    // cout << 3*sin(15) + 15*cos(3) + sqrt(15+3+1) << endl;
-    // cout << numrows << endl;
-    // cout << ceil(m/P) << endl;
-    // cout << m % int(ceil(m/P)) << endl;
+            myA[i][j] = j*sin(val_i) + val_i*cos(j) + sqrt(val_i+j+1);
+            // cout << "myA[" << i << "][" << j << "]\t" << myA[i][j] << endl;
+        }
+    }
 
-    double vals[2] = {0,1};
+    double vals[2] = {0,0};
+    for (int i = 0; i < numrows; i++) {
+        for (int j = 0; j < numcols; j++) {
+            vals[0] += myA[i][j];
+            vals[1] += pow(myA[i][j],2);
+        }
+    }
     cout << vals[0] << endl;
+    cout << vals[1] << endl;
 }
