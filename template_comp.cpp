@@ -1,9 +1,7 @@
 #include <mpi.h>
 #include <cmath>
 #include <iostream>
-using std::cout;
-using std::endl;
-using std::min;
+using namespace std;
 
 
 // Function definition matching specs
@@ -26,18 +24,28 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &P);
     MPI_Comm_rank(MPI_COMM_WORLD, &ID);
 
+
     // Initialize A (horizontal strips)
-    int m = 20, n = 20; // FIXME: need to specify m and n outside program, i.e., input
-    if (ID == P-1) {    // FIXME: very poor load balancing, last processor has much less work
-        double myA[m % int(ceil(m/P))][n];
-    } else {
-        double myA[int(ceil(m/P))][n];
+    int m = argv[1], n = argv[2];
+    int numrows = ceil(m/P), numcols=n;
+    if (ID < (m % int(ceil(m/P))) ) {
+        numrows++;
     }
-    for (int i = ID*int(ceil(m/P)); i < min(m, (ID+1)*ceil(m/P)); i++) {
+    double myA[numrows][numcols];
+    for (int i = 0; i < numrows; i++) {
         for (int j = 0; j < n; j++) {
-            myA[i][j] = j*sin(i) + i*cos(j) + sqrt(i+j+1);
+            double val_i = ID*ceil(m/P) + i;
+
+            if (ID < (m % int(ceil(m/P))) ) {
+                val_i += ID;
+            } else {
+                val_i += m % int(ceil(m/P));
+            }
+
+            myA[i][j] = j*sin(val_i) + val_i*cos(j) + sqrt(val_i+j+1);
         }
     }
+
 
     // Use MPI_BARRIER then call MPI_WTIME on root process
     MPI_Barrier(MPI_COMM_WORLD);

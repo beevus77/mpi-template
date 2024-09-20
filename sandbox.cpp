@@ -1,9 +1,10 @@
 #include <iostream>
 #include <cmath>
 using std::cout;
-using std::endl;
 using std::min;
-using std::vector;
+using std::endl;
+using std::string;
+using std::stoi;
 
 
 double f(double x)
@@ -21,18 +22,30 @@ int main(int argc, char **argv)
     // cout << f(1.) << endl;
     // cout << min(3.4, ceil(3.3)) << endl;
     // cout << 20 % int(ceil(20./3)) << endl;
+    // cout << argv[1] << endl;
 
-    int m = 20, n = 20, P=3, ID = 2;
-    vector<vector<double>> myA;
-    if (ID == P-1) {
-        double myA[m % int(ceil(m/P))][n];
-    } else {
-        double myA[int(ceil(m/P))][n];
+    int m = 20, n = 20, P=3, ID = stoi(argv[1]);
+    int numrows = ceil(m/P), numcols=n;
+    if (ID < (m % int(ceil(m/P))) ) {
+        numrows++;
     }
-    for (int i = ID*int(ceil(m/P)); i < min(m, (ID+1)*int(ceil(m/P))); i++) {
+    double myA[numrows][numcols];
+    for (int i = 0; i < numrows; i++) {
         for (int j = 0; j < n; j++) {
-            myA[i][j] = j*sin(i) + i*cos(j) + sqrt(i+j+1);
+            double val_i = ID*ceil(m/P) + i;
+
+            if (ID < (m % int(ceil(m/P))) ) {
+                val_i += ID;
+            } else {
+                val_i += m % int(ceil(m/P));
+            }
+
+            myA[i][j] = j*sin(val_i) + val_i*cos(j) + sqrt(val_i+j+1);
+            cout << "myA[" << i << "][" << j << "]\t" << myA[i][j] << endl;
         }
     }
-    cout << myA << endl;
+    cout << 3*sin(15) + 15*cos(3) + sqrt(15+3+1) << endl;
+    cout << numrows << endl;
+    cout << ceil(m/P) << endl;
+    cout << m % int(ceil(m/P)) << endl;
 }
