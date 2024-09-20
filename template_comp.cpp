@@ -1,7 +1,11 @@
 #include <mpi.h>
 #include <cmath>
 #include <iostream>
-using namespace std;
+using std::cout;
+using std::min;
+using std::endl;
+using std::string;
+using std::stoi;
 
 
 // Function definition matching specs
@@ -27,7 +31,7 @@ int main(int argc, char **argv)
 
     // Initialize A (horizontal strips)
     // TODO for speedup: flip matrix if m > n (tall)
-    int m = argv[1], n = argv[2];
+    int m = stoi(argv[1]), n = stoi(argv[2]);
     int numrows = ceil(m/P), numcols=n;
     if (ID < (m % int(ceil(m/P))) ) {
         numrows++;
