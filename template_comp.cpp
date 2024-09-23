@@ -63,7 +63,6 @@ int main(int argc, char **argv)
 
     // Use MPI_BARRIER then call MPI_WTIME on root process
     MPI_Barrier(MPI_COMM_WORLD);
-    cout << "Processor " << ID << " made it to the barrier" << endl;
     double start, end;
     if (ID == 0){
         start = MPI_Wtime();
@@ -71,16 +70,15 @@ int main(int argc, char **argv)
 
 
     // Iterate 10 times
-    for (int i = 0; i < 10; i++) {
+    for (int it = 0; it < 10; it++) {
 
         // Send ghost rows
         if (ID != P-1) { // Send last row if not last processor
-            MPI_Send(&myA[numrows-1], numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+            MPI_Send(&myA[numrows-1], numcols, MPI_DOUBLE, ID+1, it, MPI_COMM_WORLD);
         }
         if (ID != 0) { // Send first row if not first processor
-            MPI_Send(&myA[0], numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
+            MPI_Send(&myA[0], numcols, MPI_DOUBLE, ID-1, 10+it, MPI_COMM_WORLD);
         }
-        cout << "Processor " << ID << " made it past the send" << endl;
 
         // Initialize myNewA to new values of myA
         double myNewA[numrows][numcols];
@@ -108,21 +106,20 @@ int main(int argc, char **argv)
 
         // Receive ghost row
         double ghosttop[numcols], ghostbottom[numcols];
-        if (ID != P-1) { // Receive last row if not last processor
-            MPI_Recv(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if (ID != 0) { // Receive last row if not first processor
+            MPI_Recv(&ghosttop, numcols, MPI_DOUBLE, ID-1, it, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[0][j] = getTempVal(ghosttop[j-1], ghosttop[j+1], myA[1][j-1], myA[1][j+1], myA[0][j]);
             }
         }
-        if (ID != 0) { // Receive first row if not first processor
-            MPI_Recv(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if (ID != P-1) { // Receive first row if not last processor
+            MPI_Recv(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 10+it, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[numrows-1][j] = getTempVal(myA[numrows-2][j-1], myA[numrows-2][j+1], ghostbottom[j-1], ghostbottom[j+1], myA[numrows-1][j]);
             }
         }
-        cout << "Processor " << ID << " made it past the receive" << endl;
 
         // Copy contents of myNewA to myA
         for (int i = 0; i < numrows; i++) {
