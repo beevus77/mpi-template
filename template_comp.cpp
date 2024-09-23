@@ -3,6 +3,7 @@
 #include <iostream>
 using std::cout;
 using std::min;
+using std::max;
 using std::endl;
 using std::string;
 using std::stoi;
@@ -20,7 +21,7 @@ double f(double x)
 
 
 double getTempVal(double topleft, double topright, double bottomleft, double bottomright, double here) {
-    z = ( f(topleft) + f(topright) + f(bottomleft) + f(bottomright) + f(here) )/5;
+    double z = ( f(topleft) + f(topright) + f(bottomleft) + f(bottomright) + f(here) )/5;
     return max(-25, min(30, z));
 }
 
@@ -73,10 +74,10 @@ int main(int argc, char **argv)
 
         // Send ghost rows
         if (ID != P-1) { // Send last row if not last processor
-            MPI_SEND(&myA[numrows-1], numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+            MPI_Send(&myA[numrows-1], numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
         }
         if (ID != 0) { // Send first row if not first processor
-            MPI_SEND(&myA[0], numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
+            MPI_Send(&myA[0], numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
         }
 
         // Initialize myNewA to new values of myA
@@ -106,14 +107,14 @@ int main(int argc, char **argv)
         // Receive ghost row
         double ghosttop[numcols], ghostbottom[numcols];
         if (ID != P-1) { // Receive last row if not last processor
-            MPI_RECV(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
+            MPI_Recv(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[0][j] = getTempVal(ghosttop[j-1], ghosttop[j+1], myA[1][j-1], myA[1][j+1], myA[0][j]);
             }
         }
         if (ID != 0) { // Receive first row if not first processor
-            MPI_RECV(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+            MPI_Recv(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[numrows-1][j] = getTempVal(myA[numrows-2][j-1], myA[numrows-2][j+1], ghostbottom[j-1], ghostbottom[j+1], myA[numrows-1][j]);
