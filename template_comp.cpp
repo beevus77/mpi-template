@@ -62,7 +62,32 @@ int main(int argc, char **argv)
     }
 
     // Iterate 10 times
-    // TODO
+    for (int i = 0; i < 10; i++) {
+
+        // Initialize myNewA to new values of myA
+        double myNewA[numrows][numcols];
+        for (int i = 0; i < numrows; i++) {
+            for (int j = 0; j < numcols; j++) {
+
+                // Unchanged along border
+                if (j == 0 or (ID == 0 and i == 0) or j == numcols-1 or (ID == P-1 and i == numrows-1)) {
+                    myNewA[i][j] = myA[i][j];
+                } else {
+                    // FIXME: not correct value of z
+                    z = 2
+
+                    myNewA[i][j] = max(-25, min(30, z))
+                }
+            }
+        }
+
+        // Copy contents of myNewA to myA
+        for (int i = 0; i < numrows; i++) {
+            for (int j = 0; j < numcols; j++) {
+                myA[i][j] = myNewA[i][j];
+            }
+        }
+    }
 
     // Compute verification values, send to root process, FIXME: verification values not correct
     double vals[2] = {0,0}; // first entry: sum of all entries, second entry: sum of squares
