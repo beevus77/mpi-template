@@ -19,6 +19,12 @@ double f(double x)
 }
 
 
+double getTempVal(double topleft, double topright, double bottomleft, double bottomright, double here) {
+    z = ( f(topleft) + f(topright) + f(bottomleft) + f(bottomright) + f(here) )/5;
+    return max(-25, min(30, z));
+}
+
+
 int main(int argc, char **argv)
 {
 
@@ -61,23 +67,56 @@ int main(int argc, char **argv)
         start = MPI_Wtime();
     }
 
+
     // Iterate 10 times
     for (int i = 0; i < 10; i++) {
 
+        // Send ghost rows
+        if (ID != P-1) { // Send last row if not last processor
+            MPI_SEND(&myA[numrows-1], numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+        }
+        if (ID != 0) { // Send first row if not first processor
+            MPI_SEND(&myA[0], numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
+        }
+
         // Initialize myNewA to new values of myA
         double myNewA[numrows][numcols];
-        for (int i = 0; i < numrows; i++) {
+        for (int i = 1; i < numrows-1; i++) { // Loop over interior points
+            for (int j = 1; j < numcols-1; j++) {
+                myNewA[i][j] = getTempVal(myA[i-1][j-1], myA[i-1][j+1], myA[i+1][j-1], myA[i+1][j+1], myA[i][j]);
+            }
+        }
+
+        // Unchanged along borders
+        for (int i = 0; i < numrows; i++) { // First and last columns
+            myNewA[i][0] = myA[i][0];
+            myNewA[i][numcols-1] = myA[i][numcols-1];
+        }
+        if (ID == 0) { // Top row
             for (int j = 0; j < numcols; j++) {
+                myNewA[0][j] = myA[0][j]
+            }
+        } 
+        if (ID == P-1) { // Top row
+            for (int j = 0; j < numcols; j++) {
+                myNewA[numrows-1][j] = myA[numrows-1][j]
+            }
+        }
 
-                // Unchanged along border
-                if (j == 0 or (ID == 0 and i == 0) or j == numcols-1 or (ID == P-1 and i == numrows-1)) {
-                    myNewA[i][j] = myA[i][j];
-                } else {
-                    // FIXME: not correct value of z
-                    z = 2
+        // Receive ghost row
+        double ghosttop[numcols], ghostbottom[numcols];
+        if (ID != P-1) { // Receive last row if not last processor
+            MPI_RECV(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
 
-                    myNewA[i][j] = max(-25, min(30, z))
-                }
+            for (int j = 1; j < numcols-1; j++) {
+                myNewA[0][j] = getTempVal(ghosttop[j-1], ghosttop[j+1], myA[1][j-1], myA[1][j+1], myA[0][j]);
+            }
+        }
+        if (ID != 0) { // Receive first row if not first processor
+            MPI_RECV(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+
+            for (int j = 1; j < numcols-1; j++) {
+                myNewA[numrows-1][j] = getTempVal(myA[numrows-2][j-1], myA[numrows-2][j+1], ghostbottom[j-1], ghostbottom[j+1], myA[numrows-1][j]);
             }
         }
 
@@ -88,6 +127,7 @@ int main(int argc, char **argv)
             }
         }
     }
+
 
     // Compute verification values, send to root process, FIXME: verification values not correct
     double vals[2] = {0,0}; // first entry: sum of all entries, second entry: sum of squares
