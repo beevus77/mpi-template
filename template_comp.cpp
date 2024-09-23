@@ -63,6 +63,7 @@ int main(int argc, char **argv)
 
     // Use MPI_BARRIER then call MPI_WTIME on root process
     MPI_Barrier(MPI_COMM_WORLD);
+    cout << "Processor " << ID << " made it to the barrier" << endl;
     double start, end;
     if (ID == 0){
         start = MPI_Wtime();
@@ -79,6 +80,7 @@ int main(int argc, char **argv)
         if (ID != 0) { // Send first row if not first processor
             MPI_Send(&myA[0], numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
         }
+        cout << "Processor " << ID << " made it past the send" << endl;
 
         // Initialize myNewA to new values of myA
         double myNewA[numrows][numcols];
@@ -120,6 +122,7 @@ int main(int argc, char **argv)
                 myNewA[numrows-1][j] = getTempVal(myA[numrows-2][j-1], myA[numrows-2][j+1], ghostbottom[j-1], ghostbottom[j+1], myA[numrows-1][j]);
             }
         }
+        cout << "Processor " << ID << " made it past the receive" << endl;
 
         // Copy contents of myNewA to myA
         for (int i = 0; i < numrows; i++) {
