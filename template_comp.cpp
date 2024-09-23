@@ -22,7 +22,7 @@ double f(double x)
 
 double getTempVal(double topleft, double topright, double bottomleft, double bottomright, double here) {
     double z = ( f(topleft) + f(topright) + f(bottomleft) + f(bottomright) + f(here) )/5;
-    return max(-25, min(30, z));
+    return max(double(-25), min(double(30), z));
 }
 
 
@@ -95,26 +95,26 @@ int main(int argc, char **argv)
         }
         if (ID == 0) { // Top row
             for (int j = 0; j < numcols; j++) {
-                myNewA[0][j] = myA[0][j]
+                myNewA[0][j] = myA[0][j];
             }
         } 
         if (ID == P-1) { // Top row
             for (int j = 0; j < numcols; j++) {
-                myNewA[numrows-1][j] = myA[numrows-1][j]
+                myNewA[numrows-1][j] = myA[numrows-1][j];
             }
         }
 
         // Receive ghost row
         double ghosttop[numcols], ghostbottom[numcols];
         if (ID != P-1) { // Receive last row if not last processor
-            MPI_Recv(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD);
+            MPI_Recv(&ghosttop, numcols, MPI_DOUBLE, ID-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[0][j] = getTempVal(ghosttop[j-1], ghosttop[j+1], myA[1][j-1], myA[1][j+1], myA[0][j]);
             }
         }
         if (ID != 0) { // Receive first row if not first processor
-            MPI_Recv(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD);
+            MPI_Recv(&ghostbottom, numcols, MPI_DOUBLE, ID+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             for (int j = 1; j < numcols-1; j++) {
                 myNewA[numrows-1][j] = getTempVal(myA[numrows-2][j-1], myA[numrows-2][j+1], ghostbottom[j-1], ghostbottom[j+1], myA[numrows-1][j]);
