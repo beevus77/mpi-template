@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     double myA[numrows][numcols];
     for (int i = 0; i < numrows; i++) {
         for (int j = 0; j < n; j++) {
-            double val_i = ID*ceil(m/P) + i;
+            double val_i = ID*numrows + i;
 
             // increment val_i based on ID
             if (ID < (m % numrows) ) {
