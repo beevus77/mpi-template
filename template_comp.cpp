@@ -45,16 +45,16 @@ int main(int argc, char **argv)
     }
     double myA[numrows][numcols];
     for (int i = 0; i < numrows; i++) {
+        double val_i = ID*numrows + i;
+
+        // increment val_i based on ID
+        if (ID < (m % numrows) ) {
+            val_i += ID;
+        } else {
+            val_i += m % numrows;
+        }
+
         for (int j = 0; j < n; j++) {
-            double val_i = ID*numrows + i;
-
-            // increment val_i based on ID
-            if (ID < (m % numrows) ) {
-                val_i += ID;
-            } else {
-                val_i += m % numrows;
-            }
-
             // set myA
             myA[i][j] = j*sin(val_i) + val_i*cos(j) + sqrt(val_i+j+1);
         }
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
                 myNewA[0][j] = myA[0][j];
             }
         } 
-        if (ID == P-1) { // Top row
+        if (ID == P-1) { // Bottom row
             for (int j = 0; j < numcols; j++) {
                 myNewA[numrows-1][j] = myA[numrows-1][j];
             }
@@ -140,6 +140,26 @@ int main(int argc, char **argv)
     }
     double verifications[2] = {0,0};
     MPI_Reduce(&vals, &verifications, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    // For Debugging...
+    for (int i = 0; i < numrows; i++) {
+        double val_i = ID*numrows + i;
+
+        // increment val_i based on ID
+        if (ID < (m % numrows) ) {
+            val_i += ID;
+        } else {
+            val_i += m % numrows;
+        }
+        cout << "Row " << val_i << ": ";
+
+        for (int j = 0; j < n; j++) {
+            // print entry
+            cout << myA[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
 
     // Call MPI_WTIME on root process, print elapsed time and verification
     if (ID == 0) {
