@@ -48,9 +48,7 @@ int main(int argc, char **argv)
         double val_i = ID*numrows + i;
 
         // increment val_i based on ID
-        if (ID < (m % numrows) ) {
-            val_i += ID;
-        } else {
+        if (ID >= (m % numrows) ) {
             val_i += m % numrows;
         }
 
