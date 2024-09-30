@@ -37,10 +37,9 @@ int main(int argc, char **argv)
 
 
     // Initialize A (horizontal strips)
-    // TODO for speedup: flip matrix if m > n (tall)
     int m = stoi(argv[1]), n = stoi(argv[2]);
     int numrows = int(floor(m/P)), numcols=n;
-    if (ID < (m % numrows) ) {
+    if (ID < (m % P) ) {
         numrows++;
     }
     double myA[numrows][numcols];
@@ -48,8 +47,8 @@ int main(int argc, char **argv)
         double val_i = ID*numrows + i;
 
         // increment val_i based on ID
-        if (ID >= (m % numrows) ) {
-            val_i += m % numrows;
+        if (ID >= (m % P) ) {
+            val_i += m % P;
         }
 
         for (int j = 0; j < n; j++) {
